@@ -1,437 +1,717 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sweet & Scary Chat</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>✨ 迷彩心跳 · 教官大乖</title>
     <style>
-        :root {
-            --bg-color: #ffe6eb;
-            --chat-bg: #ffffff;
-            --text-color: #333333;
-            --bubble-me: #ff758c;
-            --bubble-other: #f1f0f0;
-            --header-bg: rgba(255, 255, 255, 0.8);
-            --border-color: #ffccd5;
-        }
-
-        body.horror {
-            --bg-color: #0d0205;
-            --chat-bg: #1a0508;
-            --text-color: #ff3366;
-            --bubble-me: #590d1a;
-            --bubble-other: #2b0910;
-            --header-bg: rgba(26, 5, 8, 0.9);
-            --border-color: #ff1a40;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        /* ---------- 全局重置 ---------- */
+        * {
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            transition: background 1s, color 1s;
-            overflow: hidden;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        #top-bar {
-            padding: 10px 15px;
-            background: var(--header-bg);
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #1e2a1e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 20px;
+        }
+        /* ---------- 游戏主容器 ---------- */
+        #game-container {
+            max-width: 1100px;
+            width: 100%;
+            background: #2c3e2f;
+            border-radius: 28px;
+            padding: 20px 25px 25px 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            border: 1px solid #4a6a4a;
+            position: relative;
+        }
+        /* ---------- 顶部：标题 + 好感条 ---------- */
+        #header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            z-index: 10;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #3a5a3a;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-
-        .lang-btn, .menu-btn {
-            background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 5px 10px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 12px;
+        #title {
+            color: #f5e6c8;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
-
-        #chat-container {
-            flex: 1;
-            background-color: var(--chat-bg);
-            overflow-y: auto;
-            padding: 20px;
+        #affection-area {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
-            scroll-behavior: smooth;
-        }
-
-        .message {
-            max-width: 75%;
-            padding: 10px 14px;
-            border-radius: 18px;
-            font-size: 15px;
-            line-height: 1.4;
-            word-break: break-all;
-            animation: fadeIn 0.3s ease;
-            position: relative;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .message.other {
-            background-color: var(--bubble-other);
-            color: var(--text-color);
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
-
-        .message.me {
-            background-color: var(--bubble-me);
-            color: #ffffff;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-
-        body.horror .message.me {
-            color: #ff99bb;
-            border: 1px solid #ff1a40;
-        }
-
-        .typing {
-            font-style: italic;
-            opacity: 0.6;
-            font-size: 13px;
-            padding: 5px 10px;
-            align-self: flex-start;
-        }
-
-        #choices-container {
-            padding: 15px;
-            background: var(--header-bg);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            border-top: 1px solid var(--border-color);
-            max-height: 40vh;
-            overflow-y: auto;
-        }
-
-        .choice-btn {
-            background: var(--chat-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 14px;
-            cursor: pointer;
-            text-align: left;
-            transition: 0.2s;
-        }
-
-        .choice-btn:hover {
-            background: var(--border-color);
-        }
-
-        /* 全屏恐怖文字彈出特效 */
-        #fullscreen-horror {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(13, 2, 5, 0.95);
-            z-index: 999;
-            display: none;
-            justify-content: center;
             align-items: center;
-            flex-direction: column;
-            color: #ff1a40;
+            gap: 12px;
+            color: #f5e6c8;
+            font-weight: bold;
+            background: #1e2a1e;
+            padding: 6px 18px 6px 15px;
+            border-radius: 40px;
+            border: 1px solid #5a7a5a;
+        }
+        #affection-bar-bg {
+            width: 160px;
+            height: 16px;
+            background: #3a4a3a;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #5a6a5a;
+        }
+        #affection-bar-fill {
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(90deg, #e74c3c, #ff6b81);
+            border-radius: 20px;
+            transition: width 0.4s ease;
+        }
+        #affection-text {
+            min-width: 45px;
             text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
+            font-size: 15px;
+            color: #ffb3b3;
         }
-
-        #fullscreen-horror h1 {
-            font-size: 28px;
-            margin-bottom: 20px;
-            animation: shake 0.2s infinite;
+        /* ---------- 主体 ---------- */
+        #main-area {
+            display: flex;
+            margin-top: 18px;
+            gap: 20px;
+            min-height: 480px;
+            flex-wrap: wrap;
         }
-
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-3px, 0px) rotate(-1deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            60% { transform: translate(-1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        /* 左侧视觉面板 */
+        #visual-panel {
+            flex: 1.2;
+            min-width: 280px;
+            position: relative;
+            background: #2a3a2a;
+            border-radius: 20px;
+            overflow: hidden;
+            aspect-ratio: 16 / 10;
+            border: 1px solid #4a6a4a;
+        }
+        #bg-layer {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            background: #2d3d2d;
+        }
+        #char-layer {
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            height: 90%;
+            width: auto;
+            max-width: 50%;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6));
+            transition: opacity 0.3s;
+        }
+        /* 占位角色（无图时显示） */
+        #char-placeholder {
+            position: absolute;
+            bottom: 10%;
+            left: 12%;
+            width: 120px;
+            height: 120px;
+            background: #5a6a5a;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: #f5e6c8;
+            border: 3px solid #8a9a7a;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+        /* 右侧对话框 */
+        #dialogue-panel {
+            flex: 1.5;
+            min-width: 260px;
+            background: #1e2a1e;
+            border-radius: 20px;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #4a6a4a;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
+            max-height: 480px;
+        }
+        #speaker-name {
+            color: #f5e6c8;
+            font-size: 20px;
+            font-weight: bold;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #3a5a3a;
+            margin-bottom: 12px;
+            min-height: 36px;
+        }
+        #dialogue-text {
+            flex: 1;
+            color: #e8e0d0;
+            font-size: 16px;
+            line-height: 1.8;
+            overflow-y: auto;
+            padding-right: 6px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 300px;
+            scrollbar-width: thin;
+            scrollbar-color: #5a7a5a #1e2a1e;
+        }
+        #dialogue-text::-webkit-scrollbar {
+            width: 4px;
+        }
+        #dialogue-text::-webkit-scrollbar-thumb {
+            background: #5a7a5a;
+            border-radius: 10px;
+        }
+        /* ---------- 选项按钮 ---------- */
+        #choices-area {
+            margin-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 50px;
+        }
+        .choice-btn {
+            background: #3a4a3a;
+            border: 1px solid #5a7a5a;
+            color: #f5e6c8;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            letter-spacing: 0.5px;
+            flex: 1 0 auto;
+            max-width: 280px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .choice-btn:hover {
+            background: #5a7a5a;
+            transform: translateY(-2px);
+            border-color: #b8c8a8;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        .choice-btn:active {
+            transform: translateY(1px);
+        }
+        /* ---------- 音乐控制按钮 ---------- */
+        #music-control {
+            position: absolute;
+            bottom: 20px;
+            right: 25px;
+            background: rgba(30, 40, 30, 0.85);
+            backdrop-filter: blur(6px);
+            border: 1px solid #5a7a5a;
+            border-radius: 40px;
+            padding: 8px 18px 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 20;
+            color: #f5e6c8;
+            font-size: 14px;
+            user-select: none;
+        }
+        #music-control:hover {
+            background: rgba(50, 70, 50, 0.9);
+            border-color: #b8c8a8;
+        }
+        #music-control .icon {
+            font-size: 20px;
+        }
+        #music-control .status {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        /* ---------- 响应式 ---------- */
+        @media (max-width: 750px) {
+            #main-area {
+                flex-direction: column;
+            }
+            #visual-panel {
+                aspect-ratio: 16 / 9;
+                min-height: 200px;
+            }
+            #dialogue-panel {
+                max-height: 300px;
+            }
+            #char-layer {
+                left: 5%;
+                height: 80%;
+            }
+            #title {
+                font-size: 18px;
+            }
+            #affection-bar-bg {
+                width: 100px;
+            }
+            .choice-btn {
+                max-width: 100%;
+                flex: 1 1 100%;
+            }
+            #music-control {
+                bottom: 10px;
+                right: 12px;
+                padding: 5px 12px 5px 10px;
+                font-size: 12px;
+            }
+            #music-control .icon {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div id="top-bar">
-        <div>
-            <strong id="chat-title">iMessage - 戀愛選單</strong>
-            <span id="horror-status" style="font-size: 12px; margin-left: 10px; opacity: 0.7;"></span>
+<div id="game-container">
+    <!-- 顶部 -->
+    <div id="header">
+        <div id="title">💚 迷彩心跳 · 教官大乖</div>
+        <div id="affection-area">
+            <span>❤️ 好感</span>
+            <div id="affection-bar-bg">
+                <div id="affection-bar-fill" style="width:50%;"></div>
+            </div>
+            <span id="affection-text">50</span>
         </div>
-        <div>
-            <button class="lang-btn" onclick="toggleLang()">简 / 繁</button>
-            <button class="menu-btn" onclick="goToMenu()" id="menu-text">主菜单</button>
+    </div>
+
+    <!-- 主体 -->
+    <div id="main-area">
+        <div id="visual-panel">
+            <img id="bg-layer" src="" alt="背景" />
+            <img id="char-layer" src="" alt="立绘" />
+            <div id="char-placeholder">🪖</div>
+        </div>
+        <div id="dialogue-panel">
+            <div id="speaker-name">旁白</div>
+            <div id="dialogue-text">点击下方选项开始故事...</div>
+            <div id="choices-area"></div>
         </div>
     </div>
 
-    <div id="chat-container">
-        <!-- 聊天記錄會動態生成這裡 -->
+    <!-- 音乐控制按钮 -->
+    <div id="music-control" title="点击播放/暂停背景音乐">
+        <span class="icon">🎵</span>
+        <span class="status" id="music-status">点击播放</span>
     </div>
-
-    <div id="choices-container">
-        <!-- 選項按鈕 -->
-    </div>
-
-    <!-- 恐怖全屏彈窗 -->
-    <div id="fullscreen-horror">
-        <h1 id="horror-title">【系統警告】</h1>
-        <p id="horror-desc" style="font-size: 18px; line-height: 1.6; max-width: 600px;"></p>
-        <button class="choice-btn" style="margin-top: 30px; text-align: center;" onclick="location.reload()" id="restart-text">重新開始噩夢</button>
-    </div>
+</div>
 
 <script>
-let lang = 'cn'; // 'cn' 或 'tc'
-let currentRoute = 'menu';
-let sanity = 100;
-
-const texts = {
-    cn: {
-        menuTitle: "iMessage - 恋爱聊天室",
-        menuText: "主菜单",
-        restart: "重新开始噩梦",
-        chars: [
-            { id: 'shengchang', name: "申畅 🖤 (病娇独占)", desc: "“你去哪了？为什么不回我消息？”" },
-            { id: 'zhangjiaxin', name: "张佳欣 🍼 (情感巨婴)", desc: "“哥哥/姐姐抱抱我，我今天好难受……”" },
-            { id: 'zhangyaqi', name: "张雅琪 ♟️ (心机算计)", desc: "“利用完就想跑？你觉得你走得掉吗？”" }
-        ],
-        chooseChar: "请选择你想沉沦的聊天对象："
-    },
-    tc: {
-        menuTitle: "iMessage - 戀愛聊天室",
-        menuText: "主選單",
-        restart: "重新開始噩夢",
-        chars: [
-            { id: 'shengchang', name: "申暢 🖤 (病嬌獨佔)", desc: "“你去哪了？為什麼不回我訊息？”" },
-            { id: 'zhangjiaxin', name: "張佳欣 🍼 (情感巨嬰)", desc: "“哥哥/姐姐抱抱我，我今天好難受……”" },
-            { id: 'zhangyaqi', name: "張雅琪 ♟️ (心機算計)", desc: "“利用完就想跑？你覺得你走得掉嗎？”" }
-        ],
-        chooseChar: "請選擇你想沉淪的聊天對象："
-    }
-};
-
-function toggleLang() {
-    lang = (lang === 'cn' ? 'tc' : 'cn');
-    if (currentRoute === 'menu') showMenu();
-}
-
-function goToMenu() {
-    currentRoute = 'menu';
-    document.body.classList.remove('horror');
-    document.getElementById('fullscreen-horror').style.display = 'none';
-    showMenu();
-}
-
-function showMenu() {
-    const t = texts[lang];
-    document.getElementById('chat-title').innerText = t.menuTitle;
-    document.getElementById('menu-text').innerText = t.menuText;
-    
-    let chatBox = document.getElementById('chat-container');
-    chatBox.innerHTML = `<div class="message other">${t.chooseChar}</div>`;
-
-    let choicesBox = document.getElementById('choices-container');
-    choicesBox.innerHTML = '';
-
-    t.chars.forEach(c => {
-        let btn = document.createElement('button');
-        btn.className = 'choice-btn';
-        btn.innerHTML = `<strong>${c.name}</strong><br><span style="font-size:12px; opacity:0.7;">${c.desc}</span>`;
-        btn.onclick = () => startRoute(c.id);
-        choicesBox.appendChild(btn);
-    });
-}
-
-// 劇情資料庫
-const routes = {
-    shengchang: [
-        {
-            sender: 'other', text: { cn: "你在干嘛呢？为什么这么久才已读我？", tc: "你在幹嘛呢？為什麼這麼久才已讀我？" },
-            choices: [
-                { text: { cn: "刚刚在洗澡啦，别生气~", tc: "剛剛在洗澡啦，別生氣~" }, next: 1 },
-                { text: { cn: "跟朋友在一起，没看手机。", tc: "跟朋友在一起，沒看手機。" }, next: 2 }
-            ]
+    // ================================================================
+    // 0. 资源链接配置（你提供的所有链接）
+    // ================================================================
+    const ASSETS = {
+        // ---- 立绘 ----
+        char: {
+            normal:
+                "https://imgbed.heliar.top/i/BNGXsuXtV0Er0kU1_1788786582105_edit_717544240710910.webp",
+            smile:
+                "https://imgbed.heliar.top/i/Ub5QOnh_pqJDbC6V_1788786614351_edit_717625407757858.webp",
+            blush:
+                "https://imgbed.heliar.top/i/qvuUMlsUVWwyoyTw_1788786613213_edit_717585145625946.webp",
+            surprised:
+                "https://imgbed.heliar.top/i/jhlRtVQcIt6qxgEW_1788786633889_edit_717661150588261.webp",
         },
-        {
-            sender: 'other', text: { cn: "跟朋友？哪个朋友？男的还是女的？你是不是不要我了？", tc: "跟朋友？哪個朋友？男的還是女的？你是不是不要我了？" },
-            action: () => { sanity -= 20; checkHorror(); },
-            choices: [
-                { text: { cn: "当然是你最重要啊！乖啦。", tc: "當然是你最重要啊！乖啦。" }, next: 3 },
-                { text: { cn: "你冷静一点，我有我的社交自由。", tc: "你冷靜一點，我有我的社交自由。" }, next: 4 }
-            ]
+        // ---- 背景图 ----
+        bg: {
+            campus:
+                "https://imgbed.heliar.top/i/lDbv2lbvb4RlYixj_com.xingin.xhs_20260907211407.webp",
+            training:
+                "https://imgbed.heliar.top/i/iKiCh9-YgeTyP543_com.xingin.xhs_20260907211434.webp",
+            night:
+                "https://imgbed.heliar.top/i/F28nuY2KdctSjYnY_com.xingin.xhs_20260907211547.webp",
+            dorm:
+                "https://imgbed.heliar.top/i/8DtCCuRf7R61QJDU_com.xingin.xhs_20260907211521.webp",
+            ending:
+                "https://imgbed.heliar.top/i/JtTKXDvD1YGfFFr1_com.xingin.xhs_20260907211619.webp",
         },
-        {
-            sender: 'other', text: { cn: "呵呵……你果然在外面有别人了。没关系，我把你家地址和所有照片都发到公开论坛了哦。", tc: "呵呵……你果然在外面有別人了。沒關係，我把你家地址和所有照片都發到公開論壇了哦。" },
-            action: () => { sanity -= 40; checkHorror(); },
-            choices: [
-                { text: { cn: "你疯了吗？！快删掉！", tc: "你瘋了嗎？！快刪掉！" }, next: 5 }
-            ]
-        },
-        {
-            sender: 'other', text: { cn: "真乖。但是我不信。除非你现在把定位发给我，并且把门锁砸了。", tc: "真乖。但是我信不過。除非你現在把定位發給我，並且把門鎖砸了。" },
-            choices: [{ text: { cn: "照做...", tc: "照做..." }, next: 'end_sheng_1' }]
-        },
-        {
-            sender: 'other', text: { cn: "自由？你唯一的自由就是死在我身边。", tc: "自由？你唯一的自由就是死在我身邊。" },
-            choices: [{ text: { cn: "逃跑！", tc: "逃跑！" }, next: 'end_sheng_2' }]
-        }
-    ],
-    zhangjiaxin: [
-        {
-            sender: 'other', text: { cn: "呜呜呜……我今天切水果割到手了，好痛好痛，你怎么不来照顾我……", tc: "嗚嗚嗚……我今天切水果割到手了，好痛好痛，你怎麼不來照顧我……" },
-            choices: [
-                { text: { cn: "天啊！严重吗？我马上过去！", tc: "天啊！嚴重嗎？我馬上過去！" }, next: 1 },
-                { text: { cn: "只是小伤吧，贴个创可贴就好了呀。", tc: "只是小傷吧，貼個OK繃就好了呀。" }, next: 2 }
-            ]
-        },
-        {
-            sender: 'other', text: { cn: "创可贴根本没用！血还在流……如果你不马上出现，我就把安眠药全吃下去陪你好了。", tc: "OK繃根本沒用！血還在流……如果你不馬上出現，我就把安眠藥全吃下去陪你好了。" },
-            action: () => { sanity -= 30; checkHorror(); },
-            choices: [
-                { text: { cn: "别做傻事！我这就出门！", tc: "別做傻事！我這就出門！" }, next: 3 }
-            ]
-        },
-        {
-            sender: 'other', text: { cn: "哼……你果然不在乎我。那我死掉算了，反正大家都抛弃我了。", tc: "哼……你果然不在乎我。那我死掉算了，反正大家都拋棄我了。" },
-            choices: [{ text: { cn: "求求你别这样……", tc: "求求你別這樣……" }, next: 'end_jiaxin_1' }]
-        }
-    ],
-    zhangyaqi: [
-        {
-            sender: 'other', text: { cn: "听说你最近拿到了公司的核心企划案？把它发给我，我可以考虑不把你的秘密抖出来。", tc: "聽說你最近拿到了公司的核心企劃案？把它發給我，我可以考慮不把你的秘密抖出來。" },
-            choices: [
-                { text: { cn: "你在威胁我？信不信我报警？", tc: "你在威脅我？信不信我報警？" }, next: 1 },
-                { text: { cn: "……你想要多少钱？", tc: "……你想要多少錢？" }, next: 2 }
-            ]
-        },
-        {
-            sender: 'other', text: { cn: "报警？警察只会看到你挪用公款的证据哦。乖乖听话，今晚到我公寓来，否则明天你就身败名裂。", tc: "報警？警察只會看到你挪用公款的證據哦。乖乖聽話，今晚到我公寓來，否則明天你就身敗名裂。" },
-            action: () => { sanity -= 35; checkHorror(); },
-            choices: [
-                { text: { cn: "好，我过去……", tc: "好，我過去……" }, next: 'end_yaqi_1' }
-            ]
-        }
-    ]
-};
-
-let currentRouteKey = '';
-let currentNodeIdx = 0;
-
-function startRoute(key) {
-    currentRouteKey = key;
-    currentNodeIdx = 0;
-    sanity = 100;
-    document.getElementById('chat-container').innerHTML = '';
-    document.body.classList.remove('horror');
-    loadNode();
-}
-
-function checkHorror() {
-    if (sanity <= 60) {
-        document.body.classList.add('horror');
-        document.getElementById('horror-status').innerText = `⚠️ SAN: ${sanity}%`;
-    }
-}
-
-function loadNode() {
-    const node = routes[currentRouteKey][currentNodeIdx];
-    if (!node) return;
-
-    let chatBox = document.getElementById('chat-container');
-
-    // 顯示對方訊息
-    setTimeout(() => {
-        let msgDiv = document.createElement('div');
-        msgDiv.className = 'message other';
-        msgDiv.innerText = node.text[lang];
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-        // 顯示選項
-        let choicesBox = document.getElementById('choices-container');
-        choicesBox.innerHTML = '';
-
-        if (node.choices) {
-            node.choices.forEach(ch => {
-                let btn = document.createElement('button');
-                btn.className = 'choice-btn';
-                btn.innerText = ch.text[lang];
-                btn.onclick = () => {
-                    // 顯示我的回覆
-                    let myMsg = document.createElement('div');
-                    myMsg.className = 'message me';
-                    myMsg.innerText = ch.text[lang];
-                    chatBox.appendChild(myMsg);
-                    chatBox.scrollTop = chatBox.scrollHeight;
-
-                    if (node.action) node.action();
-
-                    if (typeof ch.next === 'string') {
-                        triggerEnding(ch.next);
-                    } else {
-                        currentNodeIdx = ch.next;
-                        setTimeout(loadNode, 800);
-                    }
-                };
-                choicesBox.appendChild(btn);
-            });
-        }
-    }, 500);
-}
-
-function triggerEnding(endKey) {
-    const endings = {
-        end_sheng_1: {
-            cn: "【申畅・病娇同化结局】\n\n你砸了门锁，走进房间。申畅温柔地笑着，用手铐把你和他的手腕锁在了一起。\n『这样我们就永远不会分开了，对吧？』\n窗外下着血红的雨，而你再也无法离开。",
-            tc: "【申暢・病嬌同化結局】\n\n你砸了門鎖，走進房間。申暢溫柔地笑著，用手銬把你和他的手腕鎖在了一起。\n『這樣我們就永遠不會分開了，對吧？』\n窗外下著血紅的雨，而你再也無法離開。"
-        },
-        end_sheng_2: {
-            cn: "【申畅・血色追逐结局】\n\n你夺门而逃，但在楼梯拐角，申畅早已拿着刀站在那里。\n『我都说了……你是我的。』",
-            tc: "【申暢・血色追逐結局】\n\n你奪門而逃，但在樓梯拐角，申暢早已拿著刀站在那裡。\n『我都說了……你是我的。』"
-        },
-        end_jiaxin_1: {
-            cn: "【张佳欣・窒息依赖结局】\n\n当你赶到时，房间里弥漫着浓重的药味。佳欣倒在怀里，对你露出诡异而满足的微笑：\n『太好了……这下你一辈子只能照顾我一个人了……』",
-            tc: "【張佳欣・窒息依賴結局】\n\n當你趕到時，房間裡瀰漫著濃重的藥味。佳欣倒在懷裡，對你露出詭異而滿足的微笑：\n『太好了……這下你一輩子只能照顧我一個人了……』"
-        },
-        end_yaqi_1: {
-            cn: "【张雅琪・算计深渊结局】\n\n你走进了雅琪的公寓，却发现大门瞬间被反锁。屏幕上显示着所有机密文件已被清空。\n『谢谢你的配合。现在，你成了我唯一的替罪羊。』",
-            tc: "【張雅琪・算計深淵結局】\n\n你走進了雅琪的公寓，卻發現大門瞬間被反鎖。螢幕上顯示著所有機密文件已被清空。\n謝謝你的配合。現在，你成了我唯一的替罪羊。』"
-        }
+        // ---- 背景音乐 ----
+        music: "https://music.163.com/song/media/outer/url?id=3320057867.mp3",
     };
 
-    const endData = endings[endKey] || { cn: "【噩梦结局】", tc: "【惡夢結局】" };
+    // ================================================================
+    // 1. 游戏核心状态
+    // ================================================================
+    const state = {
+        affection: 50,
+        flag_sent_sms: false,
+        flag_rain_dance: false,
+        history: [],
+        currentScene: null,
+    };
 
-    setTimeout(() => {
-        document.getElementById('choices-container').innerHTML = '';
-        let horrorDiv = document.getElementById('fullscreen-horror');
-        document.getElementById('horror-desc').innerText = endData[lang];
-        document.getElementById('restart-text').innerText = texts[lang].restart;
-        horrorDiv.style.display = 'flex';
-    }, 1000);
-}
+    // DOM 引用
+    const dom = {
+        bg: document.getElementById("bg-layer"),
+        char: document.getElementById("char-layer"),
+        placeholder: document.getElementById("char-placeholder"),
+        name: document.getElementById("speaker-name"),
+        text: document.getElementById("dialogue-text"),
+        choices: document.getElementById("choices-area"),
+        fill: document.getElementById("affection-bar-fill"),
+        affText: document.getElementById("affection-text"),
+        musicStatus: document.getElementById("music-status"),
+        musicControl: document.getElementById("music-control"),
+    };
 
-// 初始化選單
-showMenu();
+    // ================================================================
+    // 2. 背景音乐控制
+    // ================================================================
+    let audio = null;
+    let musicPlaying = false;
+
+    function initAudio() {
+        if (audio) return;
+        audio = new Audio(ASSETS.music);
+        audio.loop = true;
+        audio.volume = 0.5;
+
+        // 监听播放状态变化
+        audio.addEventListener("play", () => {
+            musicPlaying = true;
+            dom.musicStatus.textContent = "播放中 ♪";
+            dom.musicControl.querySelector(".icon").textContent = "🔊";
+        });
+        audio.addEventListener("pause", () => {
+            musicPlaying = false;
+            dom.musicStatus.textContent = "已暂停";
+            dom.musicControl.querySelector(".icon").textContent = "🔇";
+        });
+        audio.addEventListener("error", () => {
+            dom.musicStatus.textContent = "加载失败";
+        });
+    }
+
+    function toggleMusic() {
+        initAudio();
+        if (musicPlaying) {
+            audio.pause();
+        } else {
+            audio.play().catch(() => {
+                dom.musicStatus.textContent = "点击页面启动";
+            });
+        }
+    }
+
+    // 点击音乐控制按钮切换
+    dom.musicControl.addEventListener("click", toggleMusic);
+
+    // 用户首次点击页面任意位置时尝试启动音乐（绕过自动播放限制）
+    document.addEventListener(
+        "click",
+        function firstClick() {
+            initAudio();
+            if (!musicPlaying) {
+                audio.play().catch(() => {});
+            }
+            document.removeEventListener("click", firstClick);
+        },
+        { once: true }
+    );
+
+    // ================================================================
+    // 3. 工具函数
+    // ================================================================
+    function updateAffection(delta) {
+        state.affection = Math.min(100, Math.max(0, state.affection + delta));
+        dom.fill.style.width = state.affection + "%";
+        dom.affText.textContent = state.affection;
+    }
+
+    // 图片加载辅助（图片加载失败时显示占位符）
+    function setImages(bgKey, charKey) {
+        // 背景
+        const bgSrc = ASSETS.bg[bgKey] || "";
+        dom.bg.src = bgSrc;
+        dom.bg.style.display = bgSrc ? "block" : "none";
+        dom.bg.onerror = function () {
+            this.style.display = "none";
+        };
+
+        // 立绘
+        const charSrc = ASSETS.char[charKey] || "";
+        dom.char.src = charSrc;
+        dom.char.style.display = charSrc ? "block" : "none";
+        dom.char.onerror = function () {
+            this.style.display = "none";
+        };
+
+        // 占位符：当立绘没有成功显示时显示
+        if (!charSrc || charSrc === "") {
+            dom.placeholder.style.display = "flex";
+        } else {
+            // 如果图片加载失败，onerror 会隐藏 img，但占位符不会自动出现，这里用定时器检测
+            // 更可靠的方式：用 img 的 onerror 回调显示占位符
+            dom.char.onerror = function () {
+                this.style.display = "none";
+                dom.placeholder.style.display = "flex";
+            };
+            // 如果图片有效，先隐藏占位符
+            dom.placeholder.style.display = "none";
+            // 但如果图片加载失败，onerror 会触发
+        }
+        // 如果 charKey 是 'none' 或者空，直接显示占位符
+        if (charKey === "none" || !charKey) {
+            dom.char.style.display = "none";
+            dom.placeholder.style.display = "flex";
+        }
+    }
+
+    // 渲染场景
+    function renderScene(bgKey, charKey, speaker, dialogue, choices) {
+        setImages(bgKey, charKey);
+        dom.name.textContent = speaker;
+        dom.text.textContent = dialogue;
+        dom.choices.innerHTML = "";
+        if (choices && choices.length > 0) {
+            choices.forEach(([text, nextScene]) => {
+                const btn = document.createElement("button");
+                btn.className = "choice-btn";
+                btn.textContent = text;
+                btn.addEventListener("click", () => showScene(nextScene));
+                dom.choices.appendChild(btn);
+            });
+        } else {
+            const btn = document.createElement("button");
+            btn.className = "choice-btn";
+            btn.textContent = "重新开始";
+            btn.addEventListener("click", () => showScene("intro"));
+            dom.choices.appendChild(btn);
+        }
+        dom.text.scrollTop = 0;
+    }
+
+    // ================================================================
+    // 4. 场景定义（五章剧情）
+    // ================================================================
+    function showScene(id) {
+        state.history.push(id);
+        state.currentScene = id;
+        const scenes = {
+            intro: sceneIntro,
+            chapter1: sceneChapter1,
+            chapter2: sceneChapter2,
+            chapter2_rain: sceneChapter2Rain,
+            chapter3: sceneChapter3,
+            chapter4: sceneChapter4,
+            chapter5_ending: sceneChapter5Ending,
+        };
+        if (scenes[id]) {
+            scenes[id]();
+        } else {
+            renderScene("campus", "normal", "系统", "场景加载出错", [
+                ["重新开始", "intro"],
+            ]);
+        }
+    }
+
+    // -------- 序章 --------
+    function sceneIntro() {
+        renderScene(
+            "campus",
+            "normal",
+            "旁白",
+            "【第一章 · 初见】\n九月的阳光炽热，你拖着行李箱走进大学校门。\n一个挺拔的身影站在迎新队伍旁——他穿着军装，表情严肃，胸前名牌写着「教官：大乖」。\n\n你心头一跳：这个教官……好年轻，而且……有点帅。\n你决定——",
+            [
+                ["主动上前打招呼", "chapter1"],
+                ["假装没看见，低头走过", "chapter1"],
+            ]
+        );
+    }
+
+    // -------- 第一章 --------
+    function sceneChapter1() {
+        let reply = "";
+        // 检查上一步是否主动（简化判断：看历史记录中是否有 '主动' 相关）
+        const lastAction = state.history[state.history.length - 2] || "";
+        if (lastAction === "intro" && state.history.some((h) => h.includes("主动"))) {
+            updateAffection(10);
+            reply =
+                '大乖教官微微一愣，随即嘴角上扬：「你好，我是大乖，接下来两周由我带你们军训。」\n你心里一暖，觉得他没那么可怕。';
+        } else {
+            updateAffection(-5);
+            reply =
+                '你低头走过时，余光瞥见大乖教官似乎多看了你一眼。他什么也没说，但你的心跳莫名加快了。';
+        }
+        reply += "\n\n军训第二天，太阳毒辣，大家都在祈祷下雨。你偷偷听见有人在念奇怪的咒语……";
+        renderScene("training", "normal", "大乖", reply, [
+            ["加入求雨仪式！（做法）", "chapter2_rain"],
+            ["认真训练，不信玄学", "chapter2"],
+            ["偷懒摸鱼", "chapter2"],
+        ]);
+    }
+
+    // -------- 第二章（普通路线） --------
+    function sceneChapter2() {
+        const last = state.history[state.history.length - 1];
+        if (last === "chapter2" || last === "chapter1") {
+            if (state.history.some((h) => h.includes("认真"))) {
+                updateAffection(5);
+            } else {
+                updateAffection(-5);
+            }
+        }
+        const text =
+            "你选择脚踏实地训练，大乖教官投来赞许的目光。\n休息时，他递给你一瓶水：「喝吧，别中暑。」\n\n你注意到他的手指上贴着一块创可贴——昨晚帮同学搬东西时划伤的。\n你想说什么，但话到嘴边又咽了回去。";
+        renderScene("training", "smile", "大乖", text, [
+            ["关心他的伤口", "chapter3"],
+            ["只是默默接过水", "chapter3"],
+        ]);
+    }
+
+    // -------- 第二章（求雨路线） --------
+    function sceneChapter2Rain() {
+        updateAffection(10);
+        state.flag_rain_dance = true;
+        const ritual = `你闭上眼睛，开始大声念诵：
+「雨来！雨从四面八方来！魂兮归来！魂兮归来！啊啊...雨！啊啊.....魂兮归来！（做法）（跳大神）（围炉转圈）（上香）𓀀𓀁𓀃𓀅𓀇𓀋𓀌𓀎（做法）𓀙𓀠𓀤𓀥𓀫（做法）（念咒）（旋转）（摇铃跳大神）（低声吟唱）（摇铃）（甩旗）（点火）（做法）（摇铃）（念咒）雨来𓀁 𓀂 𓀄 𓀅 ....雨四面八方来....𓀉 𓀊 𓀋 𓀌 𓀍...啊啊... 𓀎 𓀏 𓀐 𓀑 𓀒𓀓 𓀔 𓀕 𓀖 𓀗...雨铺天盖地来....𓀘 𓀙 𓀛 𓀜 𓀝 𓀞𓀀....雨时时刻刻来....𓀆 𓀇𓀙 𓀚啊啊....𓀐 𓀑 𓀒𓀓大雨来！」
+
+突然，天空飘下一滴雨，接着是第二滴……所有人都惊呆了。
+大乖教官也愣住，随即笑出声：「真有你的。」
+他悄悄在你耳边说：「小迷信，不过……挺可爱的。」`;
+        renderScene("training", "surprised", "你（做法中）", ritual, [
+            ["继续训练（好感+）", "chapter3"],
+            ["再跳一遍（搞笑）", "chapter3"],
+        ]);
+    }
+
+    // -------- 第三章（夜谈） --------
+    function sceneChapter3() {
+        let text = "";
+        if (state.history.some((h) => h.includes("关心"))) {
+            updateAffection(10);
+            text =
+                '夜晚，操场拉歌结束后，你发现大乖教官独自坐在看台上。\n你走过去，递给他一张创可贴：「教官，你的手……」\n他愣了一下，接过创可贴：「你还记得啊。」他低头笑了笑，「谢谢。」\n\n你们聊了很久，他说他只比你们大两岁，也是刚毕业就来带军训。\n「其实我很紧张，怕带不好你们。」他第一次露出腼腆的表情。';
+        } else {
+            updateAffection(5);
+            text =
+                '你默默坐在大乖教官旁边，他看了你一眼，没有赶你走。\n沉默许久，他轻声说：「明天就要结营了，时间真快。」';
+        }
+        text += "\n\n回到宿舍，你辗转难眠。手机屏幕亮着，对话框里光标闪烁……你想发一条消息。";
+        renderScene("night", "smile", "大乖", text, [
+            ["编辑一条表白短信", "chapter4"],
+            ["放下手机，什么也不发", "chapter4"],
+        ]);
+    }
+
+    // -------- 第四章（发短信抉择） --------
+    function sceneChapter4() {
+        // 判断用户选择的是发短信还是不发
+        // 由于 chapter4 是从 chapter3 跳转来的，我们根据 history 判断
+        // 但更准确：在 chapter3 的选择中，我们分别指向了不同的 next，但这里统一进入 chapter4
+        // 我们需要在 chapter3 中区分，但为了简化，我们在 chapter4 中根据 history 最近一条判断
+        const last = state.history[state.history.length - 1];
+        if (last === "chapter4") {
+            // 如果是从 chapter3 直接来的，默认没有发短信，但用户可能点击了编辑
+            // 但更好的方式：在 chapter3 中直接跳转到不同场景，但我们统一用 chapter4，用标志区分
+            // 这里我们通过判断 history 中是否包含 "编辑" 关键字
+            if (state.history.some((h) => h.includes("编辑"))) {
+                state.flag_sent_sms = true;
+            } else {
+                state.flag_sent_sms = false;
+            }
+        }
+
+        if (state.flag_sent_sms) {
+            const sms = `你写下了那封很长的短信：
+「To乖教官：思虑再三，我还是想说出藏在心底的这份心意……我清楚这份感情并不合适，也明白我们之间有着现实与身份的距离，可情绪压在心里，我实在无法再假装淡然。
+
+军训那段日子，我的目光总会不自觉看向你。训练时你严肃认真，休息时又会流露温柔，关心我们的身体。那些细碎的瞬间，一点点留在我的心底。再难熬的训练，只要看见你，心里便会泛起悸动。这不是一时冲动，是无数瞬间慢慢积攒的喜欢。夜里总会反复想起你的模样，久久难以入眠。我不妄想会有什么结果，只是不想把这份热烈的喜欢深埋心底，留下青春的遗憾。我不强求你的回应，只想让你知道，我曾真切地喜欢你。无论你是什么想法，我都坦然接受。谢谢你，来过我的青春。」\n你颤抖着按下了「发送」。`;
+            renderScene("dorm", "blush", "你", sms, [
+                ["当面表白（结营时）", "chapter5_ending"],
+                ["等待他的回复", "chapter5_ending"],
+            ]);
+        } else {
+            const text =
+                "你放下了手机，决定把这份感情埋在心底。但第二天结营仪式上，你看见大乖教官的眼神似乎有些失落。";
+            renderScene("dorm", "normal", "你", text, [
+                ["当面表白（结营时）", "chapter5_ending"],
+                ["等待他的回复", "chapter5_ending"],
+            ]);
+        }
+    }
+
+    // -------- 第五章：结局 --------
+    function sceneChapter5Ending() {
+        const aff = state.affection;
+        const sent = state.flag_sent_sms;
+        const rain = state.flag_rain_dance;
+
+        let title = "",
+            story = "";
+
+        if (aff >= 80 && sent) {
+            title = "💞 两情相悦 · 雨过天晴";
+            story = `结营那天，大乖教官单独叫住你。
+他手里拿着手机，屏幕上正是你发的那条短信。
+「我……看了很多遍。」他耳根泛红，「其实我早就注意到你了。你练军姿时总偷看我，你以为我不知道？」
+
+他轻轻揉了揉你的头发：「小傻瓜，我比你更早心动。」
+
+从此，军训结束，但你们的故事才刚刚开始。`;
+        } else if (aff >= 60 && sent) {
+            title = "🌱 细水长流 · 等待回应";
+            story = `大乖教官收到了你的短信，但他没有立刻回复。
+结营后一个月，你收到他的消息：「抱歉，当时有些不知所措。现在……我们可以重新认识一下吗？」
+
+你们从朋友开始，慢慢走近。`;
+        } else if (aff >= 50 && !sent) {
+            title = "🌙 未说出口的遗憾";
+            story = `你没有表白，但你们在告别时拥抱了一下。
+大乖教官低声说：「如果你有什么想说的，我随时都在。」
+
+你看着他离开的背影，心里暗暗决定：下次见面，一定要说出来。`;
+        } else if (aff >= 70 && rain) {
+            title = "☔ 雨神的馈赠 · 纯属意外";
+            story = `由于你求雨过于卖力，最后一天真的下起了暴雨。
+结营仪式取消，大乖教官和你一起躲在小卖部门口。
+他浑身湿透，却笑着把外套披在你头上：「你这求雨本事……以后娶回家，每天都能下雨？」
+
+你脸红了，他居然在开这种玩笑！`;
+        } else {
+            title = "💔 错过的季节";
+            story = `军训结束，你们各自回到自己的生活。
+偶尔在校园里遇见，也只是点头微笑。
+有些心动，注定只能藏进日记里。
+
+——但至少，你曾真心喜欢过那个叫「大乖」的教官。`;
+        }
+
+        const finalText = `${story}\n\n—— 最终好感度：${aff} ——`;
+        renderScene("ending", "blush", `【${title}】`, finalText, [
+            ["重新开始", "intro"],
+        ]);
+    }
+
+    // ================================================================
+    // 5. 启动游戏
+    // ================================================================
+    window.onload = function () {
+        dom.fill.style.width = "50%";
+        dom.affText.textContent = "50";
+        showScene("intro");
+    };
 </script>
 
 </body>
