@@ -1,21 +1,438 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>思想審查日誌</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet & Scary Chat</title>
+    <style>
+        :root {
+            --bg-color: #ffe6eb;
+            --chat-bg: #ffffff;
+            --text-color: #333333;
+            --bubble-me: #ff758c;
+            --bubble-other: #f1f0f0;
+            --header-bg: rgba(255, 255, 255, 0.8);
+            --border-color: #ffccd5;
+        }
+
+        body.horror {
+            --bg-color: #0d0205;
+            --chat-bg: #1a0508;
+            --text-color: #ff3366;
+            --bubble-me: #590d1a;
+            --bubble-other: #2b0910;
+            --header-bg: rgba(26, 5, 8, 0.9);
+            --border-color: #ff1a40;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            transition: background 1s, color 1s;
+            overflow: hidden;
+        }
+
+        #top-bar {
+            padding: 10px 15px;
+            background: var(--header-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+        }
+
+        .lang-btn, .menu-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        #chat-container {
+            flex: 1;
+            background-color: var(--chat-bg);
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.4;
+            word-break: break-all;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.other {
+            background-color: var(--bubble-other);
+            color: var(--text-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.me {
+            background-color: var(--bubble-me);
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        body.horror .message.me {
+            color: #ff99bb;
+            border: 1px solid #ff1a40;
+        }
+
+        .typing {
+            font-style: italic;
+            opacity: 0.6;
+            font-size: 13px;
+            padding: 5px 10px;
+            align-self: flex-start;
+        }
+
+        #choices-container {
+            padding: 15px;
+            background: var(--header-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-top: 1px solid var(--border-color);
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+
+        .choice-btn {
+            background: var(--chat-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.2s;
+        }
+
+        .choice-btn:hover {
+            background: var(--border-color);
+        }
+
+        /* 全屏恐怖文字彈出特效 */
+        #fullscreen-horror {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(13, 2, 5, 0.95);
+            z-index: 999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #ff1a40;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #fullscreen-horror h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            animation: shake 0.2s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-3px, 0px) rotate(-1deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            60% { transform: translate(-1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+    </style>
 </head>
 <body>
-    <div id="game-container">
-        <!-- 劇情文字顯示區 -->
-        <div id="story-text">系統初始化中...</div>
-        
-        <!-- 選項按鈕區 -->
-        <div id="choices-container">
-            <!-- 按鈕會由 JavaScript 動態生成 -->
+
+    <div id="top-bar">
+        <div>
+            <strong id="chat-title">iMessage - 戀愛選單</strong>
+            <span id="horror-status" style="font-size: 12px; margin-left: 10px; opacity: 0.7;"></span>
+        </div>
+        <div>
+            <button class="lang-btn" onclick="toggleLang()">简 / 繁</button>
+            <button class="menu-btn" onclick="goToMenu()" id="menu-text">主菜单</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <div id="chat-container">
+        <!-- 聊天記錄會動態生成這裡 -->
+    </div>
+
+    <div id="choices-container">
+        <!-- 選項按鈕 -->
+    </div>
+
+    <!-- 恐怖全屏彈窗 -->
+    <div id="fullscreen-horror">
+        <h1 id="horror-title">【系統警告】</h1>
+        <p id="horror-desc" style="font-size: 18px; line-height: 1.6; max-width: 600px;"></p>
+        <button class="choice-btn" style="margin-top: 30px; text-align: center;" onclick="location.reload()" id="restart-text">重新開始噩夢</button>
+    </div>
+
+<script>
+let lang = 'cn'; // 'cn' 或 'tc'
+let currentRoute = 'menu';
+let sanity = 100;
+
+const texts = {
+    cn: {
+        menuTitle: "iMessage - 恋爱聊天室",
+        menuText: "主菜单",
+        restart: "重新开始噩梦",
+        chars: [
+            { id: 'shengchang', name: "申畅 🖤 (病娇独占)", desc: "“你去哪了？为什么不回我消息？”" },
+            { id: 'zhangjiaxin', name: "张佳欣 🍼 (情感巨婴)", desc: "“哥哥/姐姐抱抱我，我今天好难受……”" },
+            { id: 'zhangyaqi', name: "张雅琪 ♟️ (心机算计)", desc: "“利用完就想跑？你觉得你走得掉吗？”" }
+        ],
+        chooseChar: "请选择你想沉沦的聊天对象："
+    },
+    tc: {
+        menuTitle: "iMessage - 戀愛聊天室",
+        menuText: "主選單",
+        restart: "重新開始噩夢",
+        chars: [
+            { id: 'shengchang', name: "申暢 🖤 (病嬌獨佔)", desc: "“你去哪了？為什麼不回我訊息？”" },
+            { id: 'zhangjiaxin', name: "張佳欣 🍼 (情感巨嬰)", desc: "“哥哥/姐姐抱抱我，我今天好難受……”" },
+            { id: 'zhangyaqi', name: "張雅琪 ♟️ (心機算計)", desc: "“利用完就想跑？你覺得你走得掉嗎？”" }
+        ],
+        chooseChar: "請選擇你想沉淪的聊天對象："
+    }
+};
+
+function toggleLang() {
+    lang = (lang === 'cn' ? 'tc' : 'cn');
+    if (currentRoute === 'menu') showMenu();
+}
+
+function goToMenu() {
+    currentRoute = 'menu';
+    document.body.classList.remove('horror');
+    document.getElementById('fullscreen-horror').style.display = 'none';
+    showMenu();
+}
+
+function showMenu() {
+    const t = texts[lang];
+    document.getElementById('chat-title').innerText = t.menuTitle;
+    document.getElementById('menu-text').innerText = t.menuText;
+    
+    let chatBox = document.getElementById('chat-container');
+    chatBox.innerHTML = `<div class="message other">${t.chooseChar}</div>`;
+
+    let choicesBox = document.getElementById('choices-container');
+    choicesBox.innerHTML = '';
+
+    t.chars.forEach(c => {
+        let btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerHTML = `<strong>${c.name}</strong><br><span style="font-size:12px; opacity:0.7;">${c.desc}</span>`;
+        btn.onclick = () => startRoute(c.id);
+        choicesBox.appendChild(btn);
+    });
+}
+
+// 劇情資料庫
+const routes = {
+    shengchang: [
+        {
+            sender: 'other', text: { cn: "你在干嘛呢？为什么这么久才已读我？", tc: "你在幹嘛呢？為什麼這麼久才已讀我？" },
+            choices: [
+                { text: { cn: "刚刚在洗澡啦，别生气~", tc: "剛剛在洗澡啦，別生氣~" }, next: 1 },
+                { text: { cn: "跟朋友在一起，没看手机。", tc: "跟朋友在一起，沒看手機。" }, next: 2 }
+            ]
+        },
+        {
+            sender: 'other', text: { cn: "跟朋友？哪个朋友？男的还是女的？你是不是不要我了？", tc: "跟朋友？哪個朋友？男的還是女的？你是不是不要我了？" },
+            action: () => { sanity -= 20; checkHorror(); },
+            choices: [
+                { text: { cn: "当然是你最重要啊！乖啦。", tc: "當然是你最重要啊！乖啦。" }, next: 3 },
+                { text: { cn: "你冷静一点，我有我的社交自由。", tc: "你冷靜一點，我有我的社交自由。" }, next: 4 }
+            ]
+        },
+        {
+            sender: 'other', text: { cn: "呵呵……你果然在外面有别人了。没关系，我把你家地址和所有照片都发到公开论坛了哦。", tc: "呵呵……你果然在外面有別人了。沒關係，我把你家地址和所有照片都發到公開論壇了哦。" },
+            action: () => { sanity -= 40; checkHorror(); },
+            choices: [
+                { text: { cn: "你疯了吗？！快删掉！", tc: "你瘋了嗎？！快刪掉！" }, next: 5 }
+            ]
+        },
+        {
+            sender: 'other', text: { cn: "真乖。但是我不信。除非你现在把定位发给我，并且把门锁砸了。", tc: "真乖。但是我信不過。除非你現在把定位發給我，並且把門鎖砸了。" },
+            choices: [{ text: { cn: "照做...", tc: "照做..." }, next: 'end_sheng_1' }]
+        },
+        {
+            sender: 'other', text: { cn: "自由？你唯一的自由就是死在我身边。", tc: "自由？你唯一的自由就是死在我身邊。" },
+            choices: [{ text: { cn: "逃跑！", tc: "逃跑！" }, next: 'end_sheng_2' }]
+        }
+    ],
+    zhangjiaxin: [
+        {
+            sender: 'other', text: { cn: "呜呜呜……我今天切水果割到手了，好痛好痛，你怎么不来照顾我……", tc: "嗚嗚嗚……我今天切水果割到手了，好痛好痛，你怎麼不來照顧我……" },
+            choices: [
+                { text: { cn: "天啊！严重吗？我马上过去！", tc: "天啊！嚴重嗎？我馬上過去！" }, next: 1 },
+                { text: { cn: "只是小伤吧，贴个创可贴就好了呀。", tc: "只是小傷吧，貼個OK繃就好了呀。" }, next: 2 }
+            ]
+        },
+        {
+            sender: 'other', text: { cn: "创可贴根本没用！血还在流……如果你不马上出现，我就把安眠药全吃下去陪你好了。", tc: "OK繃根本沒用！血還在流……如果你不馬上出現，我就把安眠藥全吃下去陪你好了。" },
+            action: () => { sanity -= 30; checkHorror(); },
+            choices: [
+                { text: { cn: "别做傻事！我这就出门！", tc: "別做傻事！我這就出門！" }, next: 3 }
+            ]
+        },
+        {
+            sender: 'other', text: { cn: "哼……你果然不在乎我。那我死掉算了，反正大家都抛弃我了。", tc: "哼……你果然不在乎我。那我死掉算了，反正大家都拋棄我了。" },
+            choices: [{ text: { cn: "求求你别这样……", tc: "求求你別這樣……" }, next: 'end_jiaxin_1' }]
+        }
+    ],
+    zhangyaqi: [
+        {
+            sender: 'other', text: { cn: "听说你最近拿到了公司的核心企划案？把它发给我，我可以考虑不把你的秘密抖出来。", tc: "聽說你最近拿到了公司的核心企劃案？把它發給我，我可以考慮不把你的秘密抖出來。" },
+            choices: [
+                { text: { cn: "你在威胁我？信不信我报警？", tc: "你在威脅我？信不信我報警？" }, next: 1 },
+                { text: { cn: "……你想要多少钱？", tc: "……你想要多少錢？" }, next: 2 }
+            ]
+        },
+        {
+            sender: 'other', text: { cn: "报警？警察只会看到你挪用公款的证据哦。乖乖听话，今晚到我公寓来，否则明天你就身败名裂。", tc: "報警？警察只會看到你挪用公款的證據哦。乖乖聽話，今晚到我公寓來，否則明天你就身敗名裂。" },
+            action: () => { sanity -= 35; checkHorror(); },
+            choices: [
+                { text: { cn: "好，我过去……", tc: "好，我過去……" }, next: 'end_yaqi_1' }
+            ]
+        }
+    ]
+};
+
+let currentRouteKey = '';
+let currentNodeIdx = 0;
+
+function startRoute(key) {
+    currentRouteKey = key;
+    currentNodeIdx = 0;
+    sanity = 100;
+    document.getElementById('chat-container').innerHTML = '';
+    document.body.classList.remove('horror');
+    loadNode();
+}
+
+function checkHorror() {
+    if (sanity <= 60) {
+        document.body.classList.add('horror');
+        document.getElementById('horror-status').innerText = `⚠️ SAN: ${sanity}%`;
+    }
+}
+
+function loadNode() {
+    const node = routes[currentRouteKey][currentNodeIdx];
+    if (!node) return;
+
+    let chatBox = document.getElementById('chat-container');
+
+    // 顯示對方訊息
+    setTimeout(() => {
+        let msgDiv = document.createElement('div');
+        msgDiv.className = 'message other';
+        msgDiv.innerText = node.text[lang];
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // 顯示選項
+        let choicesBox = document.getElementById('choices-container');
+        choicesBox.innerHTML = '';
+
+        if (node.choices) {
+            node.choices.forEach(ch => {
+                let btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerText = ch.text[lang];
+                btn.onclick = () => {
+                    // 顯示我的回覆
+                    let myMsg = document.createElement('div');
+                    myMsg.className = 'message me';
+                    myMsg.innerText = ch.text[lang];
+                    chatBox.appendChild(myMsg);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+
+                    if (node.action) node.action();
+
+                    if (typeof ch.next === 'string') {
+                        triggerEnding(ch.next);
+                    } else {
+                        currentNodeIdx = ch.next;
+                        setTimeout(loadNode, 800);
+                    }
+                };
+                choicesBox.appendChild(btn);
+            });
+        }
+    }, 500);
+}
+
+function triggerEnding(endKey) {
+    const endings = {
+        end_sheng_1: {
+            cn: "【申畅・病娇同化结局】\n\n你砸了门锁，走进房间。申畅温柔地笑着，用手铐把你和他的手腕锁在了一起。\n『这样我们就永远不会分开了，对吧？』\n窗外下着血红的雨，而你再也无法离开。",
+            tc: "【申暢・病嬌同化結局】\n\n你砸了門鎖，走進房間。申暢溫柔地笑著，用手銬把你和他的手腕鎖在了一起。\n『這樣我們就永遠不會分開了，對吧？』\n窗外下著血紅的雨，而你再也無法離開。"
+        },
+        end_sheng_2: {
+            cn: "【申畅・血色追逐结局】\n\n你夺门而逃，但在楼梯拐角，申畅早已拿着刀站在那里。\n『我都说了……你是我的。』",
+            tc: "【申暢・血色追逐結局】\n\n你奪門而逃，但在樓梯拐角，申暢早已拿著刀站在那裡。\n『我都說了……你是我的。』"
+        },
+        end_jiaxin_1: {
+            cn: "【张佳欣・窒息依赖结局】\n\n当你赶到时，房间里弥漫着浓重的药味。佳欣倒在怀里，对你露出诡异而满足的微笑：\n『太好了……这下你一辈子只能照顾我一个人了……』",
+            tc: "【張佳欣・窒息依賴結局】\n\n當你趕到時，房間裡瀰漫著濃重的藥味。佳欣倒在懷裡，對你露出詭異而滿足的微笑：\n『太好了……這下你一輩子只能照顧我一個人了……』"
+        },
+        end_yaqi_1: {
+            cn: "【张雅琪・算计深渊结局】\n\n你走进了雅琪的公寓，却发现大门瞬间被反锁。屏幕上显示着所有机密文件已被清空。\n『谢谢你的配合。现在，你成了我唯一的替罪羊。』",
+            tc: "【張雅琪・算計深淵結局】\n\n你走進了雅琪的公寓，卻發現大門瞬間被反鎖。螢幕上顯示著所有機密文件已被清空。\n謝謝你的配合。現在，你成了我唯一的替罪羊。』"
+        }
+    };
+
+    const endData = endings[endKey] || { cn: "【噩梦结局】", tc: "【惡夢結局】" };
+
+    setTimeout(() => {
+        document.getElementById('choices-container').innerHTML = '';
+        let horrorDiv = document.getElementById('fullscreen-horror');
+        document.getElementById('horror-desc').innerText = endData[lang];
+        document.getElementById('restart-text').innerText = texts[lang].restart;
+        horrorDiv.style.display = 'flex';
+    }, 1000);
+}
+
+// 初始化選單
+showMenu();
+</script>
+
 </body>
 </html>
